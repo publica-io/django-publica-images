@@ -36,9 +36,7 @@ class Image(models.Model):
 
 
 class ImageInstance(EnabledMixin, OrderingMixin):
-    '''
-    Content for Image
-    '''
+    '''Content for Image'''
 
     # enabled
     # order
