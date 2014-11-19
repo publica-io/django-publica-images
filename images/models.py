@@ -2,7 +2,7 @@
 from django.db import models
 from django.contrib.contenttypes import generic
 
-from entropy.base import EnabledMixin, OrderingMixin
+from entropy.mixins import EnabledMixin, OrderingMixin
 
 from .settings import CONTENT_MODELS
 
