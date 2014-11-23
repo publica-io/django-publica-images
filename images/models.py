@@ -4,56 +4,52 @@ from django.contrib.contenttypes import generic
 
 from entropy.mixins import EnabledMixin, OrderingMixin
 
-from .settings import CONTENT_MODELS
+from .settings import CONTENT_MODELS, USE_FILEBROWSER
+
+if USE_FILEBROWSER:
+    from filebrowser.fields import FileBrowseField
 
 
-class Image(models.Model):
-    '''
-    Image URLs that reference an external source; such as FilePicker / S3
-    [{
-        "url":"https://www.filepicker.io/api/file/3d6OxllbQi2bfkLhGSrg",
-        "filename":"m10.png",
-        "mimetype":"image/png",
-        "size":166680,
-        "key":"y5dz1osWQaC89JT8dUJG_m10.png",
-        "container":"m10-staging","isWriteable":true
-    }]
 
-    '''
+class Image(EnabledMixin, OrderingMixin):
 
     title = models.CharField(blank=True, max_length=1024)
     alt = models.CharField(blank=True, max_length=1024)
-    url = models.CharField(max_length=1024)
-    filename = models.CharField(max_length=1024)
-    mimetype = models.CharField(max_length=64)
-    caption = models.TextField(blank=True, default='')
 
-    def image_instances(self):
-        return [
-            image_instance for image_instance in
-            self.imageinstance_set.enabled().prefetch_related('content_object')
-        ]
-
-
-class ImageInstance(EnabledMixin, OrderingMixin):
-    '''Content for Image'''
-
-    # enabled
-    # order
-
-    image = models.ForeignKey('Image')
     content_type = models.ForeignKey(
         'contenttypes.ContentType',
         limit_choices_to={'model__in': CONTENT_MODELS},
     )
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
+
+    if USE_FILEBROWSER:
+        file = FileBrowseField(
+            'Image file',
+            blank=True,
+            directory='images/',
+            max_length=1024,
+            null=True)
+    else:
+        file = models.ImageField(
+            blank=True,
+            upload_to='images/',
+            max_length=1024,
+            null=True)
+
+    _url = models.CharField('url', blank=True, max_length=1024)
+        
+    caption = models.TextField(blank=True, default='')
+
     is_icon = models.BooleanField(default=False)
     is_listing = models.BooleanField(default=False)
-    _caption = models.TextField('caption', blank=True, default='')
+
+    def __unicode__(self):
+        return self.url
 
     @property
-    def caption(self):
-        if self._caption:
-            return self._caption
-        return self.image.caption
+    def url(self):
+        try:
+            return self.file.url
+        except AttributeError:
+            return self._url
