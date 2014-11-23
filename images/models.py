@@ -11,54 +11,45 @@ if USE_FILEBROWSER:
 
 
 
-class Image(models.Model):
+class Image(EnabledMixin, OrderingMixin):
 
     title = models.CharField(blank=True, max_length=1024)
     alt = models.CharField(blank=True, max_length=1024)
 
-    if USE_FILEBROWSER:
-        file = FileBrowseField(
-            'Image file',
-            blank=False,
-            directory='images/',
-            max_length=1024,
-            null=True)
-    else:
-        file = models.ImageField(
-            upload_to='images/',
-            max_length=1024)
-        
-    caption = models.TextField(blank=True, default='')
-
-    def image_instances(self):
-        return [
-            image_instance for image_instance in
-            self.imageinstance_set.enabled().prefetch_related('content_object')
-        ]
-
-
-class ImageInstance(EnabledMixin, OrderingMixin):
-    '''
-    Image Instance links the Image to the object; whereas the ImageMixin
-    provides convenient pass through properties to access the image file
-    properties
-    '''
-    # enabled
-    # order
-
-    image = models.ForeignKey('Image')
     content_type = models.ForeignKey(
         'contenttypes.ContentType',
         limit_choices_to={'model__in': CONTENT_MODELS},
     )
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
+
+    if USE_FILEBROWSER:
+        file = FileBrowseField(
+            'Image file',
+            blank=True,
+            directory='images/',
+            max_length=1024,
+            null=True)
+    else:
+        file = models.ImageField(
+            blank=True,
+            upload_to='images/',
+            max_length=1024,
+            null=True)
+
+    _url = models.CharField('url', blank=True, max_length=1024)
+        
+    caption = models.TextField(blank=True, default='')
+
     is_icon = models.BooleanField(default=False)
     is_listing = models.BooleanField(default=False)
-    _caption = models.TextField('caption', blank=True, default='')
+
+    def __unicode__(self):
+        return self.url
 
     @property
-    def caption(self):
-        if self._caption:
-            return self._caption
-        return self.image.caption
+    def url(self):
+        try:
+            return self.file.url
+        except AttributeError:
+            return self._url
