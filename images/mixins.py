@@ -4,7 +4,7 @@ import copy
 from django.contrib.contenttypes.models import ContentType
 from django.utils.functional import cached_property
 
-from .models import ImageInstance
+from .models import ImageInstance, Image
 
 
 class ImageMixin(object):
@@ -21,17 +21,29 @@ class ImageMixin(object):
         )
 
     @property
-    def images(self):
-        '''Return all the images'''
+    def image_instances(self):
         return self.qset
+
+    @property
+    def images(self):
+        '''
+        Traverse the ImageInstancee 
+        '''
+        return Image.objects.filter(
+            id__in=[instance.id for instance in self.image_instances]
+        )
+
 
     @property
     def image(self):
         return self.images.first()
 
+
     @property
     def icons(self):
-        return self.images.filter(is_icon=True)
+        return self.images.filter(
+            id__in=self.image_instances.filter(is_icon=True)
+        )
 
     @property
     def icon(self):
@@ -39,9 +51,10 @@ class ImageMixin(object):
 
     @property
     def listing_images(self):
-        return self.images.filter(is_listing=True)
+        return self.images.filter(
+            id__in=self.image_instances.filter(is_listing=True)
+        )
 
     @property
     def listing_image(self):
         return self.listing_images.first()
-
