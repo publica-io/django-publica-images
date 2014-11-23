@@ -4,28 +4,30 @@ from django.contrib.contenttypes import generic
 
 from entropy.mixins import EnabledMixin, OrderingMixin
 
-from .settings import CONTENT_MODELS
+from .settings import CONTENT_MODELS, USE_FILEBROWSER
+
+if USE_FILEBROWSER:
+    from filebrowser.fields import FileBrowseField
+
 
 
 class Image(models.Model):
-    '''
-    Image URLs that reference an external source; such as FilePicker / S3
-    [{
-        "url":"https://www.filepicker.io/api/file/3d6OxllbQi2bfkLhGSrg",
-        "filename":"m10.png",
-        "mimetype":"image/png",
-        "size":166680,
-        "key":"y5dz1osWQaC89JT8dUJG_m10.png",
-        "container":"m10-staging","isWriteable":true
-    }]
-
-    '''
 
     title = models.CharField(blank=True, max_length=1024)
     alt = models.CharField(blank=True, max_length=1024)
-    url = models.CharField(max_length=1024)
-    filename = models.CharField(max_length=1024)
-    mimetype = models.CharField(max_length=64)
+
+    if USE_FILEBROWSER:
+        file = FileBrowseField(
+            'Image file',
+            blank=False,
+            directory='images/',
+            max_length=1024,
+            null=True)
+    else:
+        file = models.ImageField(
+            upload_to='images/',
+            max_length=1024)
+        
     caption = models.TextField(blank=True, default='')
 
     def image_instances(self):
@@ -36,8 +38,11 @@ class Image(models.Model):
 
 
 class ImageInstance(EnabledMixin, OrderingMixin):
-    '''Content for Image'''
-
+    '''
+    Image Instance links the Image to the object; whereas the ImageMixin
+    provides convenient pass through properties to access the image file
+    properties
+    '''
     # enabled
     # order
 

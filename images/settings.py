@@ -6,3 +6,9 @@ from django.conf import settings
 CONTENT_MODELS = getattr(
     settings, 'IMAGES_CONTENT_MODELS', ['post', 'page', 'widget']
 )
+
+# Should we use Django Filebrowser's FileBrowseField?
+
+USE_FILEBROWSER = getattr(
+	settings, 'IMAGES_USE_FILEBROWSER', False
+)
