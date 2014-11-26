@@ -46,7 +46,7 @@ class Image(EnabledMixin, OrderingMixin):
 
     class Meta:
         verbose_name = 'Attached Image'
-        verbose_name_plural = 'Attachable Images to Content'
+        verbose_name_plural = 'Attachable Images'
 
     def __unicode__(self):
         return self.url
