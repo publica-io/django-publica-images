@@ -44,6 +44,10 @@ class Image(EnabledMixin, OrderingMixin):
     is_icon = models.BooleanField(default=False)
     is_listing = models.BooleanField(default=False)
 
+    class Meta:
+        verbose_name = 'Attached Image'
+        verbose_name_plural = 'Attachable Images to Content'
+
     def __unicode__(self):
         return self.url
 
