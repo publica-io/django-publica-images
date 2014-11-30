@@ -48,4 +48,4 @@ class ImageMixin(object):
 
     @property
     def mobile_image(self):
-        return self.mobile_images.first()
+        return self.mobile_images.first() or self.images.first()
