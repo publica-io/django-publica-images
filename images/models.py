@@ -10,7 +10,6 @@ if USE_FILEBROWSER:
     from filebrowser.fields import FileBrowseField
 
 
-
 class Image(EnabledMixin, OrderingMixin):
 
     title = models.CharField(blank=True, max_length=1024)
@@ -38,11 +37,12 @@ class Image(EnabledMixin, OrderingMixin):
             null=True)
 
     _url = models.CharField('url', blank=True, max_length=1024)
-        
+
     caption = models.TextField(blank=True, default='')
 
     is_icon = models.BooleanField(default=False)
     is_listing = models.BooleanField(default=False)
+    is_mobile = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = 'Attached Image'

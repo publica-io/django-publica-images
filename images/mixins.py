@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import copy
-
 from django.contrib.contenttypes.models import ContentType
 from django.utils.functional import cached_property
 
@@ -28,7 +26,6 @@ class ImageMixin(object):
     def image(self):
         return self.images.first()
 
-
     @property
     def icons(self):
         return self.images.filter(is_icon=True)
@@ -44,3 +41,11 @@ class ImageMixin(object):
     @property
     def listing_image(self):
         return self.listing_images.first()
+
+    @property
+    def mobile_images(self):
+        return self.images.filter(is_mobile=True)
+
+    @property
+    def mobile_image(self):
+        return self.mobile_images.first()
